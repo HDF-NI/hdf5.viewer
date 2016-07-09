@@ -13,18 +13,18 @@
   "dependencies" : {
     "co" : "4.6.0",
     "koa" : "next",
-    "koa-route" : "2.4.2",
+    "koa-route" : "next",
     "koa-static" : "3.0.0",
     "require-dir" : "0.3.0",
     "binaryjs" : "0.2.1",
     "hdf5ws" : "file:../hdf5.ws"
   },
   "devDependencies" : {
-    "mathjs" : "2.6.0",
-    "xml2js" : "0.4.16",
-    "mocha" : "2.4.5",
+    "mathjs" : "3.3.0",
+    "xml2js" : "0.4.17",
+    "mocha" : "2.5.3",
     "co-mocha" : "1.1.2",
-    "should" : "8.2.1"
+    "should" : "9.0.2"
   },
   "contributors" : [ "Roger I Martin <mathmldashx@yahoo.com> (https://github.com/rimmartin/)" ],
   "license" : "MIT",
