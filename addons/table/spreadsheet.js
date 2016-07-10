@@ -1,7 +1,7 @@
 var os = require("os");
 
 
-module.exports.load = function *(dataset) {
+module.exports.load = function (dataset) {
     return { 
         multiview: true,
         xpath: "*",

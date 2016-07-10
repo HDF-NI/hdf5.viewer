@@ -11,6 +11,7 @@
   <!--script type="text/javascript" src="js/jsTree/libs/jquery.cookie.js"></script-->
   <script type="text/javascript" src="js/jquery-ui-1.11.2/jquery-ui.js"></script>
   <script type="text/javascript" src="js/dragbar.js"></script>
+  <script type="text/javascript" src="HDF5Interface.js"></script>
   </head>
 <body>
     <div id="sidebar">
@@ -26,7 +27,6 @@
     <div id="main">
         <div id="editor" dropzone="copy file:image/png file:image/gif file:image/jpeg file:text/csv" ondragstart="dragStartHandler(event, this)" ondrag="dragHandler(event, this)" ondragend="dragEndHandler(event, this)" ondrop="dropHandler(event, this)">editors/spreadsheets here or select a group and drop content here </div>
      </div>
-      <script type="text/javascript" src="js/binary.min.js"></script>
       <script>
 window.addEventListener("dragover",function(e){
   e = e || event;
@@ -118,11 +118,29 @@ function xmlToJsTree( xml ) {
         var photoplate = document.createElement("CANVAS");
         photoplate.id="photoplate";
         var context = photoplate.getContext("2d");
-       var img = new Image();
-         img.onload = function () {
+        var img = new Image();
+        img.onload = function () {
              photoplate.width=img.width;
              photoplate.height=img.height;
              context.drawImage(img, 0, 0);
+
+            var divEditor=document.createElement("DIV");
+            divEditor.id="editor";
+            divEditor.appendChild(photoplate);
+            element.appendChild(divEditor);
+            var branch = $('#h5tree').jstree(true).get_path(selectedNode[selectedNode.length-1]);
+            branch.shift();
+            var names=branch.join("/");
+            $('#h5tree').jstree(true).create_node(selectedNode[selectedNode.length-1], file.name, "last", function(e, data){
+                $('#h5tree').jstree(true).set_type(selectedNode[selectedNode.length-1].children[selectedNode[selectedNode.length-1].children.length-1],"image");
+            });
+            $('#h5tree').jstree(true).open_node(selectedNode[selectedNode.length-1]);
+            names+="/"+file.name;
+            var hdf5Interface=new HDF5Interface(9001);
+            var data=context.getImageData(0,0,img.width,img.height).data;
+            hdf5Interface.makeImage("/make_image/"+encodeURIComponent(names), data, {name: file.name, width: img.width, height: img.height, planes: 4, npals: 4, size: 4*img.width*img.height}, function(){
+            });
+        
          }
        var file=dataItems[i].getAsFile();
        img.src = window.URL.createObjectURL(file);
@@ -130,29 +148,6 @@ function xmlToJsTree( xml ) {
           element.removeChild(element.firstChild);
         }
 
-        var divEditor=document.createElement("DIV");
-        divEditor.id="editor";
-        divEditor.appendChild(photoplate);
-        element.appendChild(divEditor);
-        var branch = $('#h5tree').jstree(true).get_path(selectedNode[selectedNode.length-1]);
-        branch.shift();
-        var names=branch.join("/");
-        $('#h5tree').jstree(true).create_node(selectedNode[selectedNode.length-1], file.name, "last", function(e, data){
-            $('#h5tree').jstree(true).set_type(selectedNode[selectedNode.length-1].children[selectedNode[selectedNode.length-1].children.length-1],"image");
-        });
-        $('#h5tree').jstree(true).open_node(selectedNode[selectedNode.length-1]);
-        names+="/"+file.name;
-        $.post("/make_image/"+encodeURIComponent(names), function(returnedData) {
-
-        var client = new BinaryClient('ws://'+window.location.hostname+':9001/binary-store-image');
-        client.on('open', function(){
-            var stream = client.send(context.getImageData(0,0,img.width,img.height).data, {name: file.name, width: img.width, height: img.height, size: 4*img.width*img.height});
-            //stream.write(context.getImageData(0,0,img.width,img.height).data);
-            //stream.end();
-            
-        });
-        });
-        
      }
      else if ((dataItems[i].kind === 'file') && (dataItems[i].type.match('^text/csv'))) {
         var csvTable = document.createElement("TABLE");
@@ -166,46 +161,100 @@ function xmlToJsTree( xml ) {
         reader.onload=(function(theFile) {
 			return function(e) {
 		    var columns=0;
-                    //break the lines apart
-                    var lines = e.target.result.split('\n');
-                    var rowType='th';
-                    for(var j = 0; j<lines.length; j++){
-                            if(lines[j] != ""){
-                                    var tableRow = csvTable.appendChild(document.createElement('tr'));
-                                    //split the rows at the cellTerminator character
-                                    var information = lines[j].split(",");
-                                    columns=information.length;
-                                    for(var k = 0; k < information.length; k++){
-                                            //append the cell to the row
-                                            var cell = tableRow.appendChild(document.createElement(rowType));
-                                            cell.appendChild(document.createTextNode(information[k]));
+		    var columnLabels=[];
+		    var columnData=[];
+		    var types=[];
+		    var signs=[];
+            //break the lines apart
+            var lines = e.target.result.trim().split('\n');
+            var rowType='th';
+            //console.log(lines.length);
+            for(var j = 0; j<lines.length; j++){
+                    if(lines[j] != ""){
+                            var tableRow = csvTable.appendChild(document.createElement('tr'));
+                            //split the rows at the cellTerminator character
+                            var information = lines[j].split(",");
+                            columns=information.length;
+                            
+                            for(var k = 0; k < information.length; k++){
+                                if(j===0){
+                                    columnLabels[k]=information[k];
+                                    columnData[k]=new Array(lines.length-1);
+                                }
+                                else if(types[k]===undefined){
+                                    if(isNaN(information[k])){
+                                        types[k]=0;
                                     }
-                                    rowType='td';
+                                    else if(Number.isInteger(Number(information[k]))){
+                                        types[k]=2;
+                                    }
+                                    else types[k]=1;
+                                }
+                                else{
+                                    if(isNaN(information[k])){
+                                        types[k]=0;
+                                    }
+                                    else if(Number.isInteger(Number(information[k]))){
+                                        if(types[k]>2)types[k]=2;
+                                    }
+                                    else if(types[k]>1)types[k]=1;
+                                }
+                                if(j>0)columnData[k][j-1]=information[k];
+                                //append the cell to the row
+                                var cell = tableRow.appendChild(document.createElement(rowType));
+                                cell.appendChild(document.createTextNode(information[k]));
                             }
-                            else{
-                                
-                            }
-
+                            rowType='td';
                     }
-        var branch = $('#h5tree').jstree(true).get_path(selectedNode[selectedNode.length-1]);
-        branch.shift();
-        var names=branch.join("/");
-        $('#h5tree').jstree(true).create_node(selectedNode[selectedNode.length-1], file.name, "last", function(e, data){
-            $('#h5tree').jstree(true).set_type(selectedNode[selectedNode.length-1].children[selectedNode[selectedNode.length-1].children.length-1],"table");
-        });
-        $('#h5tree').jstree(true).open_node(selectedNode[selectedNode.length-1]);
-        names+="/"+file.name;
-        $.post("/make_table/"+encodeURIComponent(names), function(returnedData) {
-
-        var client = new BinaryClient('ws://'+window.location.hostname+':9001/binary-store-table');
-        client.on('error',function (error ) {console.log(error);});
-        client.on('open', function(){
-            var stream = client.createStream({name: file.name, rows: lines.length, columns: columns});
-            stream.write(e.target.result);
-            stream.end();
-        });
-        });
-			
+                    else{
+                        
+                    }
+    
+            }
+            var branch = $('#h5tree').jstree(true).get_path(selectedNode[selectedNode.length-1]);
+            branch.shift();
+            var names=branch.join("/");
+            $('#h5tree').jstree(true).create_node(selectedNode[selectedNode.length-1], file.name, "last", function(e, data){
+                $('#h5tree').jstree(true).set_type(selectedNode[selectedNode.length-1].children[selectedNode[selectedNode.length-1].children.length-1],"table");
+            });
+            $('#h5tree').jstree(true).open_node(selectedNode[selectedNode.length-1]);
+            names+="/"+file.name;
+            var hdf5Interface=new HDF5Interface(9001);
+            var data=new Array(columnLabels.length);
+            for(var k = 0; k<columnLabels.length; k++){
+                switch(types[k]){
+                    case 0:
+                        var columnStr=new String();
+                        //console.log(columnData[k].length+" "+columnData.length);
+                        for(var j = 0; j<columnData[k].length; j++){
+                            columnStr+=columnData[k][j];
+                            if(j<columnData[k].length-1)columnStr+=",";
+                        }
+                        //console.log(columnStr);
+                        var buf = new ArrayBuffer(columnStr.length); // 1 bytes for each char
+                        data[k]=new Uint8Array(buf)
+                        for (var j=0, strLen=columnStr.length; j < strLen; j++) {
+                            data[k][j] = columnStr.charCodeAt(j);
+                        }
+                        
+                        break;
+                    case 2:
+                        data[k]=new Int32Array(columnData[k].length);
+                        for(var j = 0; j<columnData[k].length; j++){
+                            data[k][j]=Number(columnData[k][j]);
+                        }
+                        break;
+                    default:
+                        data[k]=new Float64Array(columnData[k].length);
+                        for(var j = 0; j<columnData[k].length; j++){
+                            data[k][j]=Number(columnData[k][j]);
+                        }
+                        break;
+                }
+            }
+            hdf5Interface.makeTable(encodeURIComponent(names), columnLabels, data, function(){
+            });
+    
 			};
 		  })(file);
         reader.readAsText(file);
@@ -240,30 +289,24 @@ function xmlToJsTree( xml ) {
 		    var columns=0;
                     //break the lines apart
                     //var lines = e.target.result.split('\n');
-        textArea.value=e.target.result;
-        /*$("#xmltree").jstree(xmlToJsTree(e.target.result));*/
-                    
-        var branch = $('#h5tree').jstree(true).get_path(selectedNode[selectedNode.length-1]);
-        branch.shift();
-        var names=branch.join("/");
-        $('#h5tree').jstree(true).create_node(selectedNode[selectedNode.length-1], file.name, "last", function(e, data){
-            $('#h5tree').jstree(true).set_type(selectedNode[selectedNode.length-1].children[selectedNode[selectedNode.length-1].children.length-1],"text");
-        });
-        $('#h5tree').jstree(true).open_node(selectedNode[selectedNode.length-1]);
-        names+="/"+file.name;
-        console.log("post text to server");
-        $.post("/make_text/"+encodeURIComponent(names), function(returnedData) {
+            textArea.value=e.target.result;
+            /*$("#xmltree").jstree(xmlToJsTree(e.target.result));*/
+                        
+            var branch = $('#h5tree').jstree(true).get_path(selectedNode[selectedNode.length-1]);
+            branch.shift();
+            var names=branch.join("/");
+            $('#h5tree').jstree(true).create_node(selectedNode[selectedNode.length-1], file.name, "last", function(e, data){
+                $('#h5tree').jstree(true).set_type(selectedNode[selectedNode.length-1].children[selectedNode[selectedNode.length-1].children.length-1],"text");
+            });
+            $('#h5tree').jstree(true).open_node(selectedNode[selectedNode.length-1]);
+            names+="/"+file.name;
+            console.log("post text to server");
+    
+            var hdf5Interface=new HDF5Interface(9001);
+            var data=new String(e.target.result);
+            hdf5Interface.makeText("/make_text/"+encodeURIComponent(names), data, function(){
+            });
 
-        console.log("client to server");
-        var client = new BinaryClient('ws://'+window.location.hostname+':9001/binary-store-text');
-        client.on('error',function (error ) {console.log(error);});
-        client.on('open', function(){
-            var stream = client.createStream({name: file.name});
-            stream.write(e.target.result);
-            stream.end();
-        });
-        });
-			
 			};
 		  })(file);
         reader.readAsText(file);

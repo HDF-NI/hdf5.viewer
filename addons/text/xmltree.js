@@ -1,6 +1,6 @@
 
 
-module.exports.load = function * load(leaf, document) {
+module.exports.load = function (leaf, document) {
     return { 
         multiview: true,
         title: "Tree",

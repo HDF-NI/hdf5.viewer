@@ -1,6 +1,6 @@
 
 
-module.exports.load = function *(leaf, table) {
+module.exports.load = function (leaf, table) {
     return { 
         multiview: true,
         xpath: "*",

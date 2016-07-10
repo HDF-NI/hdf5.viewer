@@ -15,8 +15,8 @@
     "koa" : "next",
     "koa-route" : "next",
     "koa-static" : "3.0.0",
+    "koa-favicon" : "next",
     "require-dir" : "0.3.0",
-    "binaryjs" : "0.2.1",
     "hdf5ws" : "file:../hdf5.ws"
   },
   "devDependencies" : {
