@@ -41,14 +41,15 @@ function dragStartHandler(ev, element) {
     console.log("dragStartHandler "+ev.target.id);
   ev.target.style.opacity = '0.4';  // this / e.target is the source node.
   ev.dataTransfer.effectAllowed = "copyMove";
+  ev.dataTransfer.dropEffect = "copy";
   var dataURL = ev.target.toDataURL();
         console.log(element.id);
   var fileName=$('.jstree-clicked').text();
         console.log(fileName);
   ev.dataTransfer.setData( "DownloadURL", 'image/png:' +fileName+":"+dataURL);
-  ev.dataTransfer.setData("text/x-moz-url", dataURL);
-  ev.dataTransfer.setData("application/x-moz-file-promise-url", dataURL);
-  ev.dataTransfer.setData("application/x-moz-file-promise-dest-filename", fileName);
+  //ev.dataTransfer.setData("text/x-moz-url", dataURL);
+  //ev.dataTransfer.setData("application/x-moz-file-promise-url", dataURL);
+  //ev.dataTransfer.setData("application/x-moz-file-promise-dest-filename", fileName);
   //ev.dataTransfer.mozSetDataAt('application/x-moz-file-promise',
   //                new dataProvider(),
   //                0, Components.interfaces.nsISupports);
@@ -111,10 +112,14 @@ function xmlToJsTree( xml ) {
 
   function dropHandler(event, element) {
    var selectedNode=$('#h5tree').jstree(true).get_selected(true);
+   console.log("type "+$('#h5tree').jstree(true).get_type(selectedNode[selectedNode.length-1]));
    if(selectedNode.length<=0 ||(selectedNode.length>0 && $('#h5tree').jstree(true).get_type(selectedNode[selectedNode.length-1])!="group")) return;
    var dataItems = event.dataTransfer.items;
+   console.log("dataItems.length "+dataItems.length);
    for (var i = 0; i < dataItems.length; i += 1) {
-       if ((dataItems[i].kind === 'file') && (dataItems[i].type.match('^image/'))) {
+       var file=dataItems[i].getAsFile();
+       console.log("dataItems[i].kind "+dataItems[i].kind+" "+(dataItems[i].type.match('^image/'))+" "+file.name);
+       if ((dataItems[i].kind === 'file') && (dataItems[i].type.match('^image/') || file.name.endsWith('.jpg'))) {
         var photoplate = document.createElement("CANVAS");
         photoplate.id="photoplate";
         var context = photoplate.getContext("2d");
@@ -317,47 +322,6 @@ function xmlToJsTree( xml ) {
 //    event.target.appendChild(li);
   }
   
-function dataProvider(){} 
-
-dataProvider.prototype = {
-  QueryInterface : function(iid) {
-    if (iid.equals(Components.interfaces.nsIFlavorDataProvider)
-                  || iid.equals(Components.interfaces.nsISupports))
-      return this;
-    throw Components.results.NS_NOINTERFACE;
-  },
-  getFlavorData : function(aTransferable, aFlavor, aData, aDataLen) {
-    if (aFlavor == 'application/x-moz-file-promise') {
-  
-       var urlPrimitive = {};
-       var dataSize = {};
-  
-       aTransferable.getTransferData('application/x-moz-file-promise-url', urlPrimitive, dataSize);
-       var url = urlPrimitive.value.QueryInterface(Components.interfaces.nsISupportsString).data;
-       console.log("URL file orignal is = " + url);
-      
-       var namePrimitive = {};
-       aTransferable.getTransferData('application/x-moz-file-promise-dest-filename', namePrimitive, dataSize);
-       var name = namePrimitive.value.QueryInterface(Components.interfaces.nsISupportsString).data;
-  
-       console.log("target filename is = " + name);
-  
-       var dirPrimitive = {};
-       aTransferable.getTransferData('application/x-moz-file-promise-dir', dirPrimitive, dataSize);
-       var dir = dirPrimitive.value.QueryInterface(Components.interfaces.nsILocalFile);
-  
-       console.log("target folder is = " + dir.path);
-  
-       var file = Cc['@mozilla.org/file/local;1'].createInstance(Components.interfaces.nsILocalFile);
-       file.initWithPath(dir.path);
-       file.appendRelativePath(name);
-  
-       console.log("output final path is =" + file.path);
-  
-       // now you can write or copy the file yourself...
-    } 
-  }
-}
 </script>
 </body>
 </html>
