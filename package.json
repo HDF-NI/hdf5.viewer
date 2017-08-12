@@ -1,36 +1,39 @@
 {
-  "name" : "hdf5viewer",
-  "version" : "0.0.1",
-  "description" : "Viewer for hdf5 files",
-  "main" : "./index.js",
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/HDF-NI/hdf5.viewer.git"
+  "name": "hdf5viewer",
+  "version": "0.0.1",
+  "description": "Viewer for hdf5 files",
+  "main": "./index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HDF-NI/hdf5.viewer.git"
   },
   "engines": {
     "node": ">=4.2.1"
   },
-  "dependencies" : {
-    "co" : "4.6.0",
-    "koa" : "next",
-    "koa-route" : "next",
-    "koa-static" : "3.0.0",
-    "koa-favicon" : "next",
-    "koa-compress" : "next",
-    "require-dir" : "0.3.1",
-    "hdf5ws" : "file:../hdf5.ws"
+  "dependencies": {
+    "co": "4.6.0",
+    "koa": "2.3.0",
+    "koa-route": "next",
+    "koa-static": "4.0.1",
+    "koa-favicon": "next",
+    "koa-compress": "next",
+    "require-dir": "0.3.2",
+    "hdf5": "HDF-NI/hdf5.node",
+    "hdf5ws": "HDF-NI/hdf5.ws"
   },
-  "devDependencies" : {
-    "mathjs" : "3.9.1",
-    "xml2js" : "0.4.17",
-    "mocha" : "3.2.0",
-    "co-mocha" : "1.2.0",
-    "should" : "11.2.0"
+  "devDependencies": {
+    "mathjs": "3.16.1",
+    "xml2js": "0.4.17",
+    "mocha": "3.5.0",
+    "co-mocha": "1.2.0",
+    "should": "11.2.1"
   },
-  "contributors" : [ "Roger I Martin <mathmldashx@yahoo.com> (https://github.com/rimmartin/)" ],
-  "license" : "MIT",
-  "keywords" : [ ],
-  "bugs" : {
-    "url" : "https://github.com/HDF-NI/hdf5.viewer/issues"
+  "contributors": [
+    "Roger I Martin <mathmldashx@yahoo.com> (https://github.com/rimmartin/)"
+  ],
+  "license": "MIT",
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/HDF-NI/hdf5.viewer/issues"
   }
 }
