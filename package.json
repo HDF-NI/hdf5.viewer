@@ -12,20 +12,20 @@
   },
   "dependencies": {
     "co": "4.6.0",
-    "koa": "2.6.2",
+    "hdf5": "HDF-NI/hdf5.node",
+    "hdf5ws": "HDF-NI/hdf5.ws",
+    "koa": "2.10.0",
+    "koa-compress": "3.0.0",
+    "koa-favicon": "2.0.1",
     "koa-route": "next",
     "koa-static": "5.0.0",
-    "koa-favicon": "2.0.1",
-    "koa-compress": "3.0.0",
-    "require-dir": "1.1.0",
-    "hdf5": "HDF-NI/hdf5.node",
-    "hdf5ws": "HDF-NI/hdf5.ws"
+    "require-dir": "1.1.0"
   },
   "devDependencies": {
-    "mathjs": "5.2.3",
-    "xml2js": "0.4.19",
-    "mocha": "5.2.0",
-    "should": "13.2.3"
+    "mathjs": "6.2.3",
+    "mocha": "6.2.2",
+    "should": "13.2.3",
+    "xml2js": "0.4.22"
   },
   "contributors": [
     "Roger I Martin <mathmldashx@yahoo.com> (https://github.com/rimmartin/)"

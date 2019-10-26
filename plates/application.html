@@ -143,7 +143,7 @@ function xmlToJsTree( xml ) {
             names+="/"+file.name;
             var hdf5Interface=new HDF5Interface(9001);
             var data=context.getImageData(0,0,img.width,img.height).data;
-            hdf5Interface.makeImage("/make_image/"+encodeURIComponent(names), data, {name: file.name, width: img.width, height: img.height, planes: 4, npals: 4, size: 4*img.width*img.height}, function(){
+            hdf5Interface.makeImage(encodeURIComponent(names), data, {name: file.name, width: img.width, height: img.height, planes: 4, npals: 4, size: 4*img.width*img.height}, function(){
             });
         
          }
@@ -287,7 +287,9 @@ function xmlToJsTree( xml ) {
         while (element.firstChild) {
           element.removeChild(element.firstChild);
         }
+        console.load("dataItems "+i+" "+dataItems[i]);
         var file=dataItems[i].getAsFile();
+        console.load("file "+file);
         var reader = new FileReader();
         reader.onload=(function(theFile) {
 			return function(e) {
@@ -309,7 +311,7 @@ function xmlToJsTree( xml ) {
     
             var hdf5Interface=new HDF5Interface(9001);
             var data=new String(e.target.result);
-            hdf5Interface.makeText("/make_text/"+encodeURIComponent(names), data, function(){
+            hdf5Interface.makeText(encodeURIComponent(names), data, function(){
             });
 
 			};
