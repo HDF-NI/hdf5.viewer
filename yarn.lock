@@ -369,7 +369,7 @@ hdf5@HDF-NI/hdf5.node:
 
 hdf5ws@HDF-NI/hdf5.ws:
   version "0.0.1"
-  resolved "https://codeload.github.com/HDF-NI/hdf5.ws/tar.gz/4e1ec58ae10ce48bf1310f00655fc417c7b4d2e7"
+  resolved "https://codeload.github.com/HDF-NI/hdf5.ws/tar.gz/160758d7df54a5ca8a20c679cff79537334d322e"
   dependencies:
     co "4.6.0"
     hdf5 HDF-NI/hdf5.node

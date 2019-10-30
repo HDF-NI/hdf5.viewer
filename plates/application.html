@@ -115,11 +115,13 @@ function xmlToJsTree( xml ) {
    console.log("type "+$('#h5tree').jstree(true).get_type(selectedNode[selectedNode.length-1]));
    if(selectedNode.length<=0 ||(selectedNode.length>0 && $('#h5tree').jstree(true).get_type(selectedNode[selectedNode.length-1])!="group")) return;
    var dataItems = event.dataTransfer.items;
-   console.log("dataItems.length "+dataItems.length);
+   //console.log("dataItems.length "+dataItems.length);
    for (var i = 0; i < dataItems.length; i += 1) {
-       var file=dataItems[i].getAsFile();
-       console.log("dataItems[i].kind "+dataItems[i].kind+" "+(dataItems[i].type.match('^image/'))+" "+file.name);
-       if ((dataItems[i].kind === 'file') && (dataItems[i].type.match('^image/') || file.name.endsWith('.jpg'))) {
+       console.log("dataItems[i].kind "+dataItems[i].kind+" "+(dataItems[i].type));
+       if ((dataItems[i].kind === 'file') && (dataItems[i].type.match('^image/'))) {
+           console.log(s);
+         var file=dataItems[i].getAsFile();
+           console.log(file.name);
         var photoplate = document.createElement("CANVAS");
         photoplate.id="photoplate";
         var context = photoplate.getContext("2d");
@@ -154,6 +156,22 @@ function xmlToJsTree( xml ) {
         }
 
      }
+     else if ((dataItems[i].kind === 'string') && (dataItems[i].type.match('^text/plain'))) {
+        dataItems[i].getAsString(function (s){
+            if(s.endsWith('.csv')){
+                console.dir(s);
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        console.log(xmlhttp.responseText);
+                    }
+                }
+                xmlhttp.open("GET", s, true);
+                xmlhttp.send();
+            }
+            
+        });
+     }
      else if ((dataItems[i].kind === 'file') && (dataItems[i].type.match('^text/csv'))) {
         var csvTable = document.createElement("TABLE");
         csvTable.id="csv";
@@ -178,36 +196,37 @@ function xmlToJsTree( xml ) {
                     if(lines[j] != ""){
                             var tableRow = csvTable.appendChild(document.createElement('tr'));
                             //split the rows at the cellTerminator character
-                            var information = lines[j].split(",");
-                            columns=information.length;
+                            var information = lines[j].split(/, */);
                             
+                            columns=information.length;
                             for(var k = 0; k < information.length; k++){
+                                var cellContent = information[k].trim();
                                 if(j===0){
-                                    columnLabels[k]=information[k];
+                                    columnLabels[k]=cellContent;
                                     columnData[k]=new Array(lines.length-1);
                                 }
                                 else if(types[k]===undefined){
-                                    if(isNaN(information[k])){
+                                    if(isNaN(cellContent)){
                                         types[k]=0;
                                     }
-                                    else if(Number.isInteger(Number(information[k]))){
+                                    else if(Number.isInteger(Number(cellContent))){
                                         types[k]=2;
                                     }
                                     else types[k]=1;
                                 }
                                 else{
-                                    if(isNaN(information[k])){
+                                    if(isNaN(cellContent)){
                                         types[k]=0;
                                     }
-                                    else if(Number.isInteger(Number(information[k]))){
+                                    else if(Number.isInteger(Number(cellContent))){
                                         if(types[k]>2)types[k]=2;
                                     }
                                     else if(types[k]>1)types[k]=1;
                                 }
-                                if(j>0)columnData[k][j-1]=information[k];
+                                if(j>0)columnData[k][j-1]=cellContent;
                                 //append the cell to the row
                                 var cell = tableRow.appendChild(document.createElement(rowType));
-                                cell.appendChild(document.createTextNode(information[k]));
+                                cell.appendChild(document.createTextNode(cellContent));
                             }
                             rowType='td';
                     }
