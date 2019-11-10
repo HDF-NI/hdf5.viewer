@@ -2,7 +2,7 @@
         var context = canvas.getContext("2d");
 
             var hdf5Interface=new HDF5Interface(9001);
-            hdf5Interface.readImage(function(data, metaData){
+            hdf5Interface.requestImage(path, function(data){
                 console.log(metaData);
                 var imageData=context.createImageData(metaData.width, metaData.height);
                 var pos=0;

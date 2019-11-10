@@ -11,21 +11,36 @@
     "node": ">=6.0.0"
   },
   "dependencies": {
+    "@koa/cors": "3.0.0",
     "co": "4.6.0",
     "hdf5": "HDF-NI/hdf5.node",
-    "hdf5ws": "HDF-NI/hdf5.ws",
+    "hdf5ws": "../hdf5.ws",
+    "jquery": "^3.4.1",
+    "jquery-ui": "1.12.1",
+    "jstree": "3.3.8",
     "koa": "2.10.0",
     "koa-compress": "3.0.0",
     "koa-favicon": "2.0.1",
     "koa-route": "next",
     "koa-static": "5.0.0",
+    "koa-graceful-shutdown":"1.1.0",
     "require-dir": "1.1.0"
   },
   "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^1.4.0",
+    "gulp-uglify": "^3.0.1",
+    "gulp-run": "^1.7.1",
+    "del": "5.1.0",
     "mathjs": "6.2.3",
     "mocha": "6.2.2",
     "should": "13.2.3",
     "xml2js": "0.4.22"
+  },
+  "scripts": {
+    "buildjquery": "pnpm explore jquery-ui -- pnpm run test && cd ./node_modules/jquery-ui && grunt && cd ../jquery && pnpm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "contributors": [
     "Roger I Martin <mathmldashx@yahoo.com> (https://github.com/rimmartin/)"

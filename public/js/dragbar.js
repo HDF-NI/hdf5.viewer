@@ -1,4 +1,4 @@
-$(window).load(function(){
+$(window).on('load', function(){
 var i = 0;
 var dragging = false;
    $('#dragbar').mousedown(function(e){
