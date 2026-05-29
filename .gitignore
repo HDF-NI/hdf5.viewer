@@ -1,6 +1,8 @@
 build
 .c9
 .lock-wscript
+hdf5-backend/node_modules
+hdf5-frontend/node_modules
 /node_modules/
 /nbproject/private/
 /lib/binding/

@@ -21,25 +21,28 @@
     "koa": "2.10.0",
     "koa-compress": "3.0.0",
     "koa-favicon": "2.0.1",
+    "koa-graceful-shutdown": "1.1.0",
     "koa-route": "next",
     "koa-static": "5.0.0",
-    "koa-graceful-shutdown":"1.1.0",
+    "nvd3": "1.8.6-dev",
     "require-dir": "1.1.0"
   },
   "devDependencies": {
+    "del": "5.1.0",
     "gulp": "^4.0.2",
     "gulp-concat": "^2.6.1",
     "gulp-rename": "^1.4.0",
-    "gulp-uglify": "^3.0.1",
     "gulp-run": "^1.7.1",
-    "del": "5.1.0",
+    "gulp-uglify": "^3.0.1",
     "mathjs": "6.2.3",
     "mocha": "6.2.2",
     "should": "13.2.3",
+    "wait-on": "^9.0.10",
     "xml2js": "0.4.22"
   },
   "scripts": {
     "buildjquery": "pnpm explore jquery-ui -- pnpm run test && cd ./node_modules/jquery-ui && grunt && cd ../jquery && pnpm run build",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "contributors": [

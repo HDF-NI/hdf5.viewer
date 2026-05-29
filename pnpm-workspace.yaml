@@ -1,0 +1,13 @@
+packages:
+  - '.'
+  - '!hdf5-backend'
+node-linker: hoisted
+allowBuilds:
+  es5-ext: false
+  fsevents: set this to true or false
+  hdf5: set this to true or false
+overrides:
+  hdf5: link:../hdf5.node
+  "grunt-legacy-util": "1.1.1"
+  "grunt>lodash": "3.10.1"
+  "grunt-legacy-util>lodash": "3.10.1"
