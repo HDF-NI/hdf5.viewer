@@ -1,7 +1,7 @@
 import Koa from 'koa';
 import Router from '@koa/router';
 import cors from '@koa/cors';
-import bodyParser from 'koa-bodyparser';
+import { bodyParser } from '@koa/bodyparser';
 import hdf5Routes from './routes/hdf5.js';
 
 import H5 from 'hdf5ws/api/h5.js';
@@ -48,7 +48,21 @@ app.use(async (ctx, next) => {
             
             // This triggers your legacy class method to bind the target node internally
             // and open the listening WebSocketServer on Port 9001!
-            global.h5images.readImage(absolutePath);
+            global.h5images.readMosaic(absolutePath, (metaData) => {
+                console.log('resolve callback invoked with metadata:', metaData);
+                // resolve(metaData);
+            });
+
+            const metaData = global.h5images.getInfo(absolutePath);
+            console.log('Retrieved image metadata:', metaData);
+
+            ctx.status = 200;
+            ctx.body = {
+                success: true,
+                type: 'image_meta',
+                ...metaData
+            };
+            return;
         } else if (nodeType === 'dataset') {
             console.log(`  ⚡ Initializing H5Datasets C++ WebSocket stream context for: ${absolutePath}`);
             
